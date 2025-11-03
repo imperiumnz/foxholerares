@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Foxhole Map</title>
+<style>
+  body { margin: 0; overflow: hidden; }
+  #map-container {
+    width: 100vw;
+    height: 100vh;
+    position: relative;
+    overflow: hidden;
+    background: #333;
+  }
+  #map {
+    width: 100%;
+    height: auto;
+    transform-origin: top left;
+    cursor: grab;
+  }
+  .marker {
+    position: absolute;
+    width: 20px;
+    height: 20px;
+    background: red;
+    border-radius: 50%;
+    transform: translate(-50%, -50%);
+    pointer-events: none; /* ignore clicks */
+  }
+</style>
+</head>
+<body>
+<div id="map-container">
+  <img id="map" src="map.png" alt="Foxhole Map">
+</div>
+
+<script>
+const map = document.getElementById('map');
+const container = document.getElementById('map-container');
+
+let scale = 1;
+let originX = 0, originY = 0;
+let isDragging = false;
+let startX, startY;
+
+// Zoom in/out
+container.addEventListener('wheel', (e) => {
+  e.preventDefault();
+  const delta = e.deltaY < 0 ? 1.1 : 0.9;
+  scale *= delta;
+  map.style.transform = `translate(${originX}px, ${originY}px) scale(${scale})`;
+});
+
+// Drag map
+container.addEventListener('mousedown', (e) => {
+  isDragging = true;
+  startX = e.clientX - originX;
+  startY = e.clientY - originY;
+  map.style.cursor = 'grabbing';
+});
+container.addEventListener('mouseup', () => { isDragging = false; map.style.cursor = 'grab'; });
+container.addEventListener('mouseleave', () => { isDragging = false; map.style.cursor = 'grab'; });
+container.addEventListener('mousemove', (e) => {
+  if (!isDragging) return;
+  originX = e.clientX - startX;
+  originY = e.clientY - startY;
+  map.style.transform = `translate(${originX}px, ${originY}px) scale(${scale})`;
+});
+
+// Example: add a marker
+function addMarker(xPercent, yPercent) {
+  const marker = document.createElement('div');
+  marker.className = 'marker';
+  marker.style.left = xPercent + '%';
+  marker.style.top = yPercent + '%';
+  container.appendChild(marker);
+}
+
+// Example marker
+addMarker(50, 50); // center
+</script>
+</body>
+</html>
